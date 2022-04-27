@@ -1,6 +1,8 @@
-const createmobile = (input, arr, element1, element2, text) => {
+let api = 'https://wepro-groups.herokuapp.com/leads'
+
+const createmobile = (input, arr, element1, element2, text, id, what) => {
     let form = document.querySelector('form')
-    let arr_name_for_inp = ['Zagolovok', 'des']
+    let arr_name_for_inp = ['name', 'comment']
     let arr_ple_for_inp = ['Заголовок', 'Описание']
     form.innerHTML = ' '
     let inputmobail
@@ -20,10 +22,10 @@ const createmobile = (input, arr, element1, element2, text) => {
     let num = inputmobail.value
     inputmobail.onkeyup = () => {
         num = inputmobail.value
-        REGEX(arr, num, element1, element2)
+        REGEX(arr, num, element1, element2, id, what)
     }
     form.append(buton)
-    
+
     element2.onclick = () => {
         closeModal(element1, element2)
     }
@@ -37,7 +39,7 @@ const closeModal = (element1, element2) => {
     element1.style.opacity = "0"
     element1.style.width = "0px"
     element1.style.height = '0px'
-    body.style.overflow = 'scroll'
+    body.style.overflow = 'auto'
     setTimeout(() => {
         element2.style.display = "none"
         element1.style.display = "none"
@@ -45,9 +47,8 @@ const closeModal = (element1, element2) => {
     }, 100);
 }
 
-const showModal = (width, haight, input, text, arr, data_del, element1, element2, arr_full) => {
+const showModal = (width, haight, input, text, arr, element1, element2, id, what) => {
     let body = document.body
-    console.log(element2);
     element2.style.display = "block"
     element1.style.display = "flex"
     body.style.overflow = 'hidden'
@@ -61,47 +62,70 @@ const showModal = (width, haight, input, text, arr, data_del, element1, element2
     setTimeout(() => {
         element1.classList.add('mobail-modal')
     }, 150);
-    createmobile(input, arr, element1, element2, text)
+    createmobile(input, arr, element1, element2, text, id, what)
 }
 
-const anim = (arr, arr_full) => {
+const anim = (arr) => {
+    let arrs = localStorage.getItem('arr');
+    let parse = JSON.parse(arrs)
     let course_modal = document.querySelector('.modal')
     let bg_modal = document.querySelector('.bg-modal')
     let butns = document.querySelectorAll('div[data-but]')
-    console.log(butns);
     for (const but of butns) {
         but.onclick = () => {
-            let valueinnrTEXT = 'Добавить Задачу'
-            let data_del = but.getAttribute('data-del')
+            let valueinnrTEXT
+            let what = but.getAttribute('data-what')
+            if (what == 'edit') {
+                valueinnrTEXT = 'Изменить'
+            } else {
+                let find = parse.find(item => but.id == item._id)
+                valueinnrTEXT = find.name
+            }
             let width = but.getAttribute('data-with')
             let haight = but.getAttribute('data-haight')
             let input = but.getAttribute('data-input')
-            showModal(width, haight, input, valueinnrTEXT, arr, data_del, course_modal, bg_modal)
+            let id = but.getAttribute('id')
+            showModal(width, haight, input, valueinnrTEXT, parse, course_modal, bg_modal, id, what)
         }
     }
 }
 
-const REGEX = (finds, num, shit, element1, element2, id) => {
+const REGEX = (finds, num, element1, element2, id, patch) => {
     let form = document.querySelectorAll('form')
     for (const item of form) {
         item.onsubmit = () => {
             event.preventDefault()
             let fm = new FormData(item)
             let Create_New_Task = {
-                id: Math.random()
+                age: "19",
+                sex: "female",
+                surname: "Johns",
             }
+            let inp = document.querySelector('input[placeholder=Заголовок]')
+            console.log(inp);
+
+            let find = finds.find(item => id == item._id)
+            let num = finds.indexOf(find)
+
             fm.forEach((a, b) => {
                 Create_New_Task[b] = a
             });
 
-            let slep = setTimeout(function () {
-                axios.patch(`http://localhost:3001/user/${finds.id}`, finds)
-            }, 500);
-
-            closeModal(element1, element2)
+            if (patch == 'edit') {
+                find[num] = Create_New_Task
+                axios.patch(`${api}/${id}`, find[num])
+                closeModal(element1, element2)
+            } else {
+                if (inp.value == find.name) {
+                    post(id )
+                    closeModal(element1, element2)
+                }
+            }
         }
     }
 }
 
-
+const post = (id) => {
+    axios.delete(`${api}/${id}`)
+}
 export default anim
