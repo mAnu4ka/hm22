@@ -1,7 +1,13 @@
 const caunt = (arr) => {
-    let caunt = document.querySelectorAll('.caunt')
-    for (const item of caunt) {
-        item.innerHTML = arr.length
+    let caunt = document.querySelector('.caunt')
+    let good = document.querySelector('.good')
+    caunt.innerHTML = arr.length
+    let caunts = 0
+    for (const item of arr) {
+        if(item.status == 'done'){
+            caunts++
+        }
+        good.innerHTML = caunts 
     }
 }
 

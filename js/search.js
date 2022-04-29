@@ -3,7 +3,7 @@ const searchs = (arr, el) => {
     let inputs = el.value.toLowerCase().trim();
     let re = new RegExp(inputs + '.+$', 'i');
     patients = patients.filter(function (e, i, a) {
-        e = e.name
+        e = e.title
         if (e == undefined) {
             return
         }

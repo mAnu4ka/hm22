@@ -1,9 +1,12 @@
-let api = 'https://wepro-groups.herokuapp.com/leads'
+import newAther from './ather.js'
+import main from './main.js'
+
+let api = 'https://wepro-groups.herokuapp.com/todos'
 
 const createmobile = (input, arr, element1, element2, text, id, what) => {
     let form = document.querySelector('form')
-    let arr_name_for_inp = ['name', 'comment']
-    let arr_ple_for_inp = ['Заголовок', 'Описание']
+    let arr_name_for_inp = ['title', 'description', 'color']
+    let arr_ple_for_inp = ['Заголовок', 'Описание', 'цвет']
     form.innerHTML = ' '
     let inputmobail
     let buton = document.createElement('button')
@@ -77,9 +80,11 @@ const anim = (arr) => {
             let what = but.getAttribute('data-what')
             if (what == 'edit') {
                 valueinnrTEXT = 'Изменить'
+            } else if (what == 'create') {
+                valueinnrTEXT = 'Добавить задачу'
             } else {
                 let find = parse.find(item => but.id == item._id)
-                valueinnrTEXT = find.name
+                valueinnrTEXT = find.title
             }
             let width = but.getAttribute('data-with')
             let haight = but.getAttribute('data-haight')
@@ -96,13 +101,19 @@ const REGEX = (finds, num, element1, element2, id, patch) => {
         item.onsubmit = () => {
             event.preventDefault()
             let fm = new FormData(item)
-            let Create_New_Task = {
-                age: "19",
-                sex: "female",
-                surname: "Johns",
+            let Create_New_Task
+            if (patch == 'edit') {
+                Create_New_Task = {
+                    status: 'done',
+                    athor: newAther()
+                }
+            } else {
+                Create_New_Task = {
+                    athor: newAther()
+                }
             }
+
             let inp = document.querySelector('input[placeholder=Заголовок]')
-            console.log(inp);
 
             let find = finds.find(item => id == item._id)
             let num = finds.indexOf(find)
@@ -114,18 +125,27 @@ const REGEX = (finds, num, element1, element2, id, patch) => {
             if (patch == 'edit') {
                 find[num] = Create_New_Task
                 axios.patch(`${api}/${id}`, find[num])
-                closeModal(element1, element2)
+                manager(element1, element2)
+            } else if (patch == 'create') {
+                post(Create_New_Task)
+                manager(element1, element2)
             } else {
-                if (inp.value == find.name) {
-                    post(id )
-                    closeModal(element1, element2)
+                if (inp.value.trim().toLowerCase() == find.title.trim().toLowerCase()) {
+                    delete_S(id)
+                    manager(element1, element2)
                 }
             }
         }
     }
 }
-
-const post = (id) => {
+const manager = (element1, element2, ) => {
+    closeModal(element1, element2)
+    main()
+}
+const delete_S = (id) => {
     axios.delete(`${api}/${id}`)
+}
+const post = (arr) => {
+    axios.post(api, arr)
 }
 export default anim
